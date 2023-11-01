@@ -1,0 +1,15 @@
+{
+    "name": "Pishgaman/AccessLevel",
+    "description": "AccessLevel",
+    "authors": [{
+        "name": "Ramin Roshanghiyas",
+        "email": "ramin.roshanghiyas@gmail.com"
+    }],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Pishgaman\\AccessLevel\\": "src/"
+        }
+    }
+}
+
