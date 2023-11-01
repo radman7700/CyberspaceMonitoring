@@ -16,8 +16,13 @@ class TelegramMessageRepository
         $query = TelegramMessage::query();
     
         // اضافه کردن 'orderby' اختیاری
-        if (isset($options['orderby'])) {
-            $query->orderBy($options['orderby']);
+        if (isset($options['sortings']) && is_array($options['sortings'])) {
+            foreach ($options['sortings'] as $sorting) {
+                if (isset($sorting['column'])) {
+                    $order = isset($sorting['order']) && strtolower($sorting['order']) === 'desc' ? 'desc' : 'asc';
+                    $query->orderBy($sorting['column'], $order);
+                }
+            }
         }
     
         // اضافه کردن 'groupby' اختیاری
