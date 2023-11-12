@@ -14,7 +14,7 @@ class TelegramMessageRepository
     public function TelegramMessageGet(array $options, $perPage = 10)
     {
         $query = TelegramMessage::query();
-    
+
         // اضافه کردن 'orderby' اختیاری
         if (isset($options['sortings']) && is_array($options['sortings'])) {
             foreach ($options['sortings'] as $sorting) {
@@ -54,6 +54,10 @@ class TelegramMessageRepository
         $get = isset($options['get']) && $options['get'] ? true : false;
         if ($get) {
             return $query->get();
+        }
+
+        if (isset($options['with']) && is_array($options['with'])) {
+            $query->with($options['with']);
         }
 
         // اضافه کردن صفحه‌بندی

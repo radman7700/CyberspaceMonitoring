@@ -8,6 +8,5 @@ Route::group(['namespace' => 'Pishgaman\Pishgaman\Http\Controllers\Api','middlew
     Route::prefix('api')->group(function () {
         Route::match(['get','post','put','delete'], 'payesh/information', [PayeshInformationController::class, 'action'])->name('payesh_dashboardApi');    
         Route::match(['get','post','put','delete'], 'payesh/telegram', [PayeshTelegramController::class, 'action'])->name('payesh_telegram_messages_listApi');    
-    });
-    
+    });    
 });

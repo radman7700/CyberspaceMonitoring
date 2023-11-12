@@ -16,5 +16,10 @@ class TelegramMessage extends Model
     protected $fillable = ['mid', 'gid', 'user_id', 'date', 'message'];
 
     protected $dates = ['date'];
+
+    public function TelegramGroup()
+    {
+        return $this->belongsTo(TelegramGroup::class, 'gid', 'gid');
+    }      
 }
 

@@ -64,7 +64,24 @@ class PayeshTelegramController extends Controller
             'sortings' => [
                 ['column' => 'date', 'order' => 'desc'], 
             ],
+            'page'=>$request->page ?? 1, 
+            'with' => ['TelegramGroup:id,gid,name']          
         ];
+
+        if($request->search_text != ''){
+            $texts = explode(" ",$request->search_text);
+            $i = 1;
+            foreach($texts as $item)
+            {
+                $options['conditions'][$i] =                 
+                [
+                    'column' => 'message',
+                    'operator' => 'like',
+                    'value' => '%'.$item.'%',
+                ];
+                $i++;
+            }
+        }
         
         $messages = $this->TelegramMessageRepository->TelegramMessageGet($options);        
 
