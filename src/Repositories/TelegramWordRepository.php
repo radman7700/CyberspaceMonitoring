@@ -27,8 +27,8 @@ class TelegramWordRepository
             'max' => 20001,
             'get' => true,
             'conditions' => [
-                ['column' => 'id', 'operator' => '>', 'value' => 0],
-                ['column' => 'id', 'operator' => '<', 'value' => 10000],
+                ['column' => 'id', 'operator' => '>', 'value' => 32396],
+                ['column' => 'id', 'operator' => '<', 'value' => 40001],
             ],            
         ];
         
