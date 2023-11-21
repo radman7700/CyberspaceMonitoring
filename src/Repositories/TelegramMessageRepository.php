@@ -3,7 +3,7 @@
 namespace Pishgaman\CyberspaceMonitoring\Repositories;
 
 use Pishgaman\CyberspaceMonitoring\Database\models\TelegramMessage;
-
+use Log;
 class TelegramMessageRepository
 {
     public function getIdCount()
@@ -14,6 +14,7 @@ class TelegramMessageRepository
     public function TelegramMessageGet(array $options, $perPage = 10)
     {
         $query = TelegramMessage::query();
+        // Log::info($options);
 
         // اضافه کردن 'orderby' اختیاری
         if (isset($options['sortings']) && is_array($options['sortings'])) {
@@ -38,6 +39,33 @@ class TelegramMessageRepository
                 }
             }
         }
+
+        if (isset($options['searchString'])) {
+            // $searchString = str_replace(' ','',$options['searchString']);
+            // $searchString = str_replace('and','#',$options['searchString']);
+            // $searchString = str_replace('not','#',$options['searchString']);
+            // $searchString = str_replace('or','#',$options['searchString']);
+            // $word = explode('#',$searchString);
+            // $query->where('message',like, $condition['value']);
+            // Log::info($word);
+
+            $keywords = preg_split("/\s+(or|and)\s+/i", $options['searchString'], -1, PREG_SPLIT_DELIM_CAPTURE);
+
+            // ایجاد شرط SQL
+            $sqlCondition = '';
+            foreach ($keywords as $key => $word) {
+                if ($key % 2 == 0) {
+                    // کلماتی که بین عبارات "OR" یا "AND" هستند
+                    $sqlCondition .= "message LIKE '%$word%'";
+                } else {
+                    // عبارات "OR" یا "AND"
+                    $sqlCondition .= strtoupper($word) . ' ';
+                }
+            }
+    
+            // افزودن شرط به کوئری
+            $query->whereRaw($sqlCondition);
+        }        
     
         // اضافه کردن مشخصات برای select
         if (isset($options['select']) && is_array($options['select'])) {
@@ -62,7 +90,10 @@ class TelegramMessageRepository
 
         // اضافه کردن صفحه‌بندی
         $page = isset($options['page']) ? $options['page'] : 1;
-        return $query->paginate($perPage, ['*'], 'page', $page);
+        $result = $query->paginate($perPage, ['*'], 'page', $page);
+        // Log::info('Query Log: ' . $query->toSql());
+
+        return $result;
     }   
 
     function getMessageCounts(array $options, $perPage = 10)
