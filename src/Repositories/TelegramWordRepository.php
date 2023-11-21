@@ -19,7 +19,7 @@ class TelegramWordRepository
         $this->TelegramMessage = new TelegramMessageRepository();
     }
 
-    public function CountTelegramWordMessage()
+    public function CountTelegramWordMessageInDB()
     {
         $Virastyar = \App::make(VirastyarInterface::class);
         $options = [
@@ -27,8 +27,8 @@ class TelegramWordRepository
             'max' => 20001,
             'get' => true,
             'conditions' => [
-                ['column' => 'id', 'operator' => '>', 'value' => 32396],
-                ['column' => 'id', 'operator' => '<', 'value' => 40001],
+                ['column' => 'id', 'operator' => '>', 'value' => 80000],
+                ['column' => 'id', 'operator' => '<', 'value' => 90001],
             ],            
         ];
         
@@ -59,6 +59,45 @@ class TelegramWordRepository
         }
     }    
 
+    public function CountTelegramWordMessage($messagesId)
+    {
+        $Virastyar = \App::make(VirastyarInterface::class);
+        
+        $Virastyar = \App::make(VirastyarInterface::class);
+        $options = [
+            'min' => 0,
+            'max' => 20001,
+            'get' => true,
+            'conditions' => [
+                ['column' => 'id', 'operator' => '=', 'value' => $messagesId],
+            ],            
+        ];
+        
+        $messages = $this->TelegramMessage->TelegramMessageGet($options);        
+        foreach ($messages as $key => $value) {
+            $cleanedText = preg_replace('/[.,;:!?()\[\]{}<>"\']/', '', $value->message);
+            $cleanedText = strtolower($cleanedText);
+            $cleanedText = $Virastyar->halfSpace($cleanedText,true);
+            $words = preg_split('/\s+/', $cleanedText, -1, PREG_SPLIT_NO_EMPTY);
+            $wordCounts = array_count_values($words);    
+    
+            foreach ($wordCounts as $key => $item) {
+                $key = $this->preprocessText($key);
+
+                // اگر کلمه شکلک است یا URL معتبر است یا حاوی "#" باشد، آن را نادیده بگیر
+                if ($this->globalfunction->isEmoji($key) || strpos($key, '#') !== false) {
+                    continue;
+                }
+    
+                if ($key == '' || $key == null || $key == ' ') {
+                    continue;
+                }
+    
+                $messageDate = Carbon::parse($value->date);
+                $this->createWordCount($value->id, $key, $item, $messageDate);
+            }
+        }
+    }     
     public function preprocessText($text) {
     
         // الگوی حذف تمام علائم نگارشی
@@ -66,11 +105,11 @@ class TelegramWordRepository
         $text = preg_replace($punctuationPattern, '', $text);
 
         $word1 = ['و','ه','-','_','@','#'];
-        $word2 = ['پس','او','را','به','از','نه','ان','آن','یا','هر','ند','در','که','با','بر','تا','ما','شد'];
-        $word3 = ['خود','حتی','گفت','این','بود','شده','اگر','است','شود'];
-        $word4 = ['باید','نیست','کنند','آنها','آن‌ها','همهٔ'];
-        $word5 = ['هستند'];
-        $word6 = [];
+        $word2 = ['تو','پس','او','را','به','از','نه','ان','آن','یا','هر','ند','در','که','با','بر','تا','ما','شد'];
+        $word3 = ['فقط','اما','کند','خود','حتی','گفت','این','بود','شده','اگر','است','شود','ولی'];
+        $word4 = ['بوده','باید','نیست','کنند','دیگر','آنها','همهٔ'];
+        $word5 = ['اینکه','هستند','آن‌ها'];
+        $word6 = ['می‌شود'];
         $word7 = ['می‌کنند'];     
             
         $length = mb_strlen($text, 'UTF-8');
@@ -110,12 +149,16 @@ class TelegramWordRepository
     {
         if(!$this->globalfunction->isValidURL($word))
         {
-            TelegramWordCount::create([
-                'message_id'=>$id,
-                'word' => $word,
-                'word_count' => $count,
-                'message_date' => $message_date
-            ]);
+            try {
+                TelegramWordCount::create([
+                    'message_id'=>$id,
+                    'word' => $word,
+                    'word_count' => $count,
+                    'message_date' => $message_date
+                ]);
+            } catch (\Exception $e) {
+                echo 'No no no no ...';
+            }
         }        
     }
 }
