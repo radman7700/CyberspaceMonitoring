@@ -1,52 +1,61 @@
 <template>
-    <div class="row gutters">
-		<div class="col-xl-10 col-lg-10 col-md-8 col-sm-12 col-12">
-            <input v-model="search_text" class="form-control" placeholder="جستجو اخبار">
+    <div class="card">
+        <div class="card-body">
+            <h6 class="card-title">فیلتر‌ها</h6>
+            <div class="row gutters form-row">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                    <label for="search_text">جستجو در پیام‌ها</label>
+                    <textarea class="form-control" placeholder="جستجو اخبار" id="search_text" v-model="search_text"></textarea>
+                </div>
+                
+                <div class="col-xl-2 col-lg-2 col-md-4 col-sm-12 col-12">
+                    <br>
+                    <button type="button" class="btn btn-primary" @click="getMessageList()"><i class="fa fa-search"></i></button>
+                </div>
+            </div>
         </div>
-		<div class="col-xl-2 col-lg-2 col-md-4 col-sm-12 col-12">
-            <button type="button" class="btn btn-primary"><i class="fa fa-search" @click="getMessageList()"></i></button>
-        </div>
-    </div>
+    </div>    
+
     <br>
     <div class="row gutters">
 		<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>R</th>
-                            <th>شناسه کاربر</th>
-                            <th>نام گروه</th>
-                            <th>تاریخ ارسال</th>
-                        </tr>
-                    </thead>                
-                    <tbody v-for="(item, index)  in MessageList">
-                        <tr>
-                            <td class="align-middle">{{(index + itemsPerPage * (pagination.current_page - 1)) + 1}}</td>
-                            <td>{{item.user_id}}</td>
-                            <td>{{item.telegram_group ? item.telegram_group.name : item.gid}}</td>
-                            <td>{{convertDateToPersian(item.date)}}</td>
-                        </tr>
-                        <tr>
-                            <td colspan="4">{{item.message}}</td>
-                        </tr>                        
-                    </tbody>
-                </table>
-            </div>
+            <div class="card" v-for="(item, index)  in MessageList">
+				<div class="card-header" style="background: cornsilk;">
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+                            <h4><i class="fa fa-telegram" style="color:#55acee !important" aria-hidden="true"></i> {{item.telegram_group ? item.telegram_group.name : item.gid}} </h4>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+                            <h4>
+                                <i class="fa fa-user" aria-hidden="true" style="color:#dc3545 !important"></i> {{item.user_id}}
+                            </h4>
+                        </div>     
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 text-right" >
+                            <h4>
+                                <i class="fa fa-clock-o" aria-hidden="true" style="color:#28a745 !important"></i>
+                                {{convertDateToPersian(item.date)}}
+                            </h4>
+                        </div>
+                    </div>                                        
+                </div>
+				<div class="card-body">
+					<p>{{item.message}}</p>
+				</div>
+			</div>            
         </div>
         <div class="col-sm-12">
             <nav aria-label="Page navigation" v-if="pagination.last_page != 1">
-                <ul class="pagination">
-                    <li v-if="pagination.current_page > 1">
+                <ul class="pagination justify-content-center pagination-rounded mb-3">
+                    <li class="page-item" v-if="pagination.current_page > 1">
                         <a href="#" aria-label="Previous" class="page-link" @click.prevent="changePage(pagination.current_page - 1,orderbyValue)">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
                     <li v-for="page in pagesNumber"
-                        :class="[ page == isActived ? 'page-item active' : '']">
+                        :class="[ page == isActived ? 'page-item active' : 'page-item']">
                         <a href="#" @click.prevent="changePage(page,orderbyValue)" class="page-link">{{ page }}</a>
                     </li>
-                    <li v-if="pagination.current_page < pagination.last_page">
+                    <li class="page-item" v-if="pagination.current_page < pagination.last_page">
                         <a href="#" aria-label="Next" class="page-link"
                             @click.prevent="changePage(pagination.current_page + 1,orderbyValue)">
                             <span aria-hidden="true">&raquo;</span>
