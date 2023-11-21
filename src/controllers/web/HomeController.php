@@ -4,6 +4,7 @@ namespace Pishgaman\CyberspaceMonitoring\Controllers\web;
 
 use Illuminate\Http\Request;
 use Pishgaman\CyberspaceMonitoring\Repositories\TelegramWordRepository;
+
 class HomeController extends Controller
 {
     private $validActions = [
@@ -49,6 +50,6 @@ class HomeController extends Controller
     {
         ini_set('max_execution_time', 0); // 0 به معنی بی‌نهایت (برنامه هیچ وقت متوقف نمی‌شود)
 
-        $this->TelegramWordRepository->CountTelegramWordMessage();
+        $this->TelegramWordRepository->CountTelegramWordMessageInDB();
     }
 }
