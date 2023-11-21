@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Pishgaman\Pishgaman\Repositories\LogRepository;
 use Pishgaman\Pishgaman\Middleware\CheckMenuAccess;
 use Pishgaman\CyberspaceMonitoring\Repositories\TelegramMessageRepository;
-
+use Log;
 class PayeshTelegramController extends Controller
 {
     private $validActions = [
@@ -68,19 +68,8 @@ class PayeshTelegramController extends Controller
             'with' => ['TelegramGroup:id,gid,name']          
         ];
 
-        if($request->search_text != ''){
-            $texts = explode(" ",$request->search_text);
-            $i = 1;
-            foreach($texts as $item)
-            {
-                $options['conditions'][$i] =                 
-                [
-                    'column' => 'message',
-                    'operator' => 'like',
-                    'value' => '%'.$item.'%',
-                ];
-                $i++;
-            }
+        if ($request->search_text != '') {
+            $options['searchString'] = $request->search_text;
         }
         
         $messages = $this->TelegramMessageRepository->TelegramMessageGet($options);        
