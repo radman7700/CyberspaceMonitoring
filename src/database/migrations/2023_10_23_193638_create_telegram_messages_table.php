@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('mid');
             $table->unsignedBigInteger('gid');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamp('date');
-            $table->text('message');
+            $table->text('message')->nullable();
             $table->timestamps();
         });
 
