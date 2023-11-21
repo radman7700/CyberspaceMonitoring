@@ -132,9 +132,10 @@ class PayeshInformationController extends Controller
         $groupCount = $this->calculator->getTelegramGroupCount();
         $messageCount = $this->calculator->getTelegramMessageCount();
         $sessionCount = $this->calculator->getTelegramSessionCount();
+        $UserCount = $this->calculator->getTelegramUsersCount();
 
         $telegramStatistics = [
-            'UserCount' => 10,
+            'UserCount' => $UserCount,
             'TelegramGroupCount' => $groupCount,
             'TelegramMessageCount' => $messageCount,
             'sessionCount' => $sessionCount,
