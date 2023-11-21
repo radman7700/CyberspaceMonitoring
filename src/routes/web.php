@@ -13,6 +13,8 @@ Route::get('/payesh/dashboard', [HomeController::class, 'home'])->name('payesh_d
 Route::get('/payesh/telegram/list', [TelegramMessages::class, 'messagesList'])->name('payesh_telegram_messages_list')->middleware(['auth','CheckMenuAccess','web']);
 Route::get('/payesh/WordCount', [HomeController::class, 'WordCount'])->name('payesh_word_count')->middleware(['auth','web']);
 
-Route::get('/webservice/CyberspaceMonitoring/telegram/saveGroup', [TelegramController::class, 'saveNewMsg'])->middleware(['webservice']);
+Route::get('/webservice/CyberspaceMonitoring/telegram/saveNewMsg', [TelegramController::class, 'saveNewMsg'])->middleware(['webservice']);
+Route::get('/webservice/CyberspaceMonitoring/telegram/saveGroup', [TelegramController::class, 'saveGroup'])->middleware(['webservice']);
+Route::get('/webservice/CyberspaceMonitoring/telegram/saveUser', [TelegramController::class, 'saveUser'])->middleware(['webservice']);
 
 
