@@ -9,6 +9,7 @@ use Pishgaman\CyberspaceMonitoring\Database\models\TelegramGroup;
 use Pishgaman\CyberspaceMonitoring\Database\models\TelegramMessage;
 use Illuminate\Support\Facades\DB;
 use Pishgaman\CyberspaceMonitoring\Services\StatisticsCalculator;
+
 class PayeshInformationController extends Controller
 {
     private $validActions = [
@@ -132,9 +133,10 @@ class PayeshInformationController extends Controller
         $groupCount = $this->calculator->getTelegramGroupCount();
         $messageCount = $this->calculator->getTelegramMessageCount();
         $sessionCount = $this->calculator->getTelegramSessionCount();
+        $UserCount = $this->calculator->getTelegramUsersCount();
 
         $telegramStatistics = [
-            'UserCount' => 10,
+            'UserCount' => $UserCount,
             'TelegramGroupCount' => $groupCount,
             'TelegramMessageCount' => $messageCount,
             'sessionCount' => $sessionCount,
