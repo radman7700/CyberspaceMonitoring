@@ -3,6 +3,7 @@
 namespace Pishgaman\CyberspaceMonitoring\Controllers\web;
 
 use Illuminate\Http\Request;
+use Pishgaman\CyberspaceMonitoring\Database\models\TelegramMessage;
 
 class TelegramMessages extends Controller
 {
