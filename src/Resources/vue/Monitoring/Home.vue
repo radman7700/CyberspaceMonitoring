@@ -1,50 +1,70 @@
 <template>
     <div class="row gutters">
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-6">
-            <div class="info-tiles">
-                <div class="info-icon">
-                    <i class="icon-account_circle"></i>
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+            <div class="card bg-primary">
+                <div class="card-header d-flex justify-content-between">
+                    کاربران تلگرام
+                    <small class="opacity-5 primary-font"></small>
                 </div>
-                <div class="stats-detail">
-                    <h3>{{telegramStatistics.UserCount}}</h3>
-                    <p>کاربر تلگرام </p>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="font-size-35 font-weight-bold">{{telegramStatistics.UserCount}}</div>
+                        <div class="icon-block icon-block-xl icon-block-floating icon-block-outline-white opacity-5">
+                            <i class="fa fa-users"></i>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-6">
-            <div class="info-tiles">
-                <div class="info-icon">
-                    <i class="fa fa-location-arrow" aria-hidden="true"></i>
+            </div>  
+        </div> 
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+            <div class="card bg-success">
+                <div class="card-header d-flex justify-content-between">
+                    گروه‌های تلگرام
+                    <small class="opacity-5 primary-font"></small>
                 </div>
-                <div class="stats-detail">
-                    <h3>{{telegramStatistics.TelegramGroupCount}}</h3>
-                    <p>گروه‌های تلگرام</p>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="font-size-35 font-weight-bold">{{telegramStatistics.TelegramGroupCount}}</div>
+                        <div class="icon-block icon-block-xl icon-block-floating icon-block-outline-white opacity-5">
+                            <i class="fa fa-telegram"></i>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-6">
-            <div class="info-tiles">
-                <div class="info-icon">
-                    <i class="icon-visibility"></i>
+            </div>  
+        </div>   
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+            <div class="card bg-warning">
+                <div class="card-header d-flex justify-content-between">
+                    پست گروه‌های تلگرام
+                    <small class="opacity-5 primary-font"></small>
                 </div>
-                <div class="stats-detail">
-                    <h3>{{telegramStatistics.TelegramMessageCount}}</h3>
-                    <p>پست گروه‌های تلگرام</p>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="font-size-35 font-weight-bold">{{telegramStatistics.TelegramMessageCount}}</div>
+                        <div class="icon-block icon-block-xl icon-block-floating icon-block-outline-white opacity-5">
+                            <i class="fa fa-comment" style="color: ;"></i>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-6">
-            <div class="info-tiles">
-                <div class="info-icon">
-                    <i class="icon-shopping_basket"></i>
+            </div>  
+        </div>       
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+            <div class="card bg-info">
+                <div class="card-header d-flex justify-content-between">
+                    نشست‌های فعال
+                    <small class="opacity-5 primary-font"></small>
                 </div>
-                <div class="stats-detail">
-                    <h3>{{telegramStatistics.sessionCount}}</h3>
-                    <p>نشست‌های فعال</p>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="font-size-35 font-weight-bold">{{telegramStatistics.sessionCount}}</div>
+                        <div class="icon-block icon-block-xl icon-block-floating icon-block-outline-white opacity-5">
+                            <i class="fa fa-phone"></i>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
+            </div>  
+        </div>                
+    </div>    
     <div class="row gutters">
 		<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 		    <div class="card">
