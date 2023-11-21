@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('telegram_groups', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('gid');
-            $table->string('name');
-            $table->string('username')->unique();
-            $table->integer('participants_count');
-            $table->text('description');
+            $table->string('name')->nullable();
+            $table->string('username')->nullable();
+            $table->integer('participants_count')->nullable();
+            $table->text('description')->nullable();
+            $table->text('session')->nullable();
             $table->timestamps();
         });
     }
