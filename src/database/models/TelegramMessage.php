@@ -20,6 +20,10 @@ class TelegramMessage extends Model
     public function TelegramGroup()
     {
         return $this->belongsTo(TelegramGroup::class, 'gid', 'gid');
-    }      
+    }   
+    public function TelegramUser()
+    {
+        return $this->belongsTo(TelegramUser::class, 'user_id', 'user_id');
+    }       
 }
 

@@ -1,6 +1,6 @@
 <template>
     <div class="row gutters">
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
             <div class="card bg-primary">
                 <div class="card-header d-flex justify-content-between">
                     کاربران تلگرام
@@ -16,7 +16,7 @@
                 </div>
             </div>  
         </div> 
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
             <div class="card bg-success">
                 <div class="card-header d-flex justify-content-between">
                     گروه‌های تلگرام
@@ -31,8 +31,8 @@
                     </div>
                 </div>
             </div>  
-        </div>   
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+        </div>          
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
             <div class="card bg-warning">
                 <div class="card-header d-flex justify-content-between">
                     پست گروه‌های تلگرام
@@ -47,8 +47,8 @@
                     </div>
                 </div>
             </div>  
-        </div>       
-        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+        </div> 
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
             <div class="card bg-info">
                 <div class="card-header d-flex justify-content-between">
                     نشست‌های فعال
@@ -63,7 +63,7 @@
                     </div>
                 </div>
             </div>  
-        </div>                
+        </div>                              
     </div>    
     <div class="row gutters">
 		<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
@@ -84,7 +84,7 @@
 				    <div class="card-title">بالاترین کلمات کلیدی</div>
 				</div>
 				<div class="card-body d-flex">
-				    <div id="my_favorite_latin_words" class="w-100"></div>
+				    <div id="my_favorite_latin_words" class="w-100" style="width:100%;height: 480px;"></div>
 				</div>
 			</div>
 		</div>   
@@ -138,7 +138,10 @@ export default {
                 }).then(response => {
                     this.PayeshInformation = response.data.PayeshInformation;
                     this.wordCloudData = JSON.parse(this.PayeshInformation.wordCounts);
-                    $("#my_favorite_latin_words").jQCloud(this.wordCloudData);
+                    $("#my_favorite_latin_words").jQCloud(this.wordCloudData,{
+                        autoResize: true,
+
+                    });
                 }).catch(error => {
                     this.checkError(error);
                 });

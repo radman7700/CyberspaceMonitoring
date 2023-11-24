@@ -79,6 +79,7 @@ class PayeshInformationController extends Controller
             return [
                 'text'=>$item->word,
                 'weight'=>(int) $item->total_word_count,
+                'link'=>$item->word
             ];
         })
         ->values()

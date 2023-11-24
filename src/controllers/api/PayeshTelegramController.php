@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use Pishgaman\Pishgaman\Repositories\LogRepository;
 use Pishgaman\Pishgaman\Middleware\CheckMenuAccess;
 use Pishgaman\CyberspaceMonitoring\Repositories\TelegramMessageRepository;
+use Carbon\Carbon;
+use Morilog\Jalali\Jalalian;
 use Log;
+
 class PayeshTelegramController extends Controller
 {
     private $validActions = [
@@ -60,13 +63,37 @@ class PayeshTelegramController extends Controller
             return response()->json(['errors' => 'requestNotAllowed'], 422);
         }
 
+        $today = Carbon::now();
+        $nextDay = $today->addDay()->format('Y-m-d h:i:s');
+        $beforday = $today->subDays(60)->format('Y-m-d h:i:s');
+
+        $startDate = (($request->date_start ?? '') == '') ? $beforday : $request->date_start ;
+        $endDate = (($request->date_end ?? '')== '') ? $nextDay : $request->date_end ;
+
         $options = [
             'sortings' => [
                 ['column' => 'date', 'order' => 'desc'], 
             ],
+            'conditions' => [
+                [
+                    'column' => 'date',
+                    'operator' => 'between',
+                    'value' => [$startDate, $endDate],
+                ],
+            ],            
             'page'=>$request->page ?? 1, 
-            'with' => ['TelegramGroup:id,gid,name']          
+            'with' => ['TelegramGroup:id,gid,name','TelegramUser:id,first_name,last_name,username']          
         ];
+
+        if(($request->search_user_id ?? '') != '')
+        {
+            $options['conditions'][] = ['column' => 'user_id', 'operator' => 'like', 'value' => '%'.$request->search_user_id.'%'];
+        }
+
+        if(($request->search_group_id ?? '') != '')
+        {
+            $options['conditions'][] = ['column' => 'gid', 'operator' => 'like', 'value' => '%'.$request->search_group_id.'%'];            
+        }        
 
         if ($request->search_text != '') {
             $options['searchString'] = $request->search_text;
@@ -74,7 +101,7 @@ class PayeshTelegramController extends Controller
         
         $messages = $this->TelegramMessageRepository->TelegramMessageGet($options);        
 
-        return response()->json(['MessageList' => $messages], 200);
+        return response()->json(['MessageList' => $messages[0],'MessageListCount'=>$messages[1]], 200);
 
     }
 }

@@ -35,20 +35,17 @@ class TelegramMessageRepository
         if (isset($options['conditions']) && is_array($options['conditions'])) {
             foreach ($options['conditions'] as $condition) {
                 if (isset($condition['column']) && isset($condition['operator']) && isset($condition['value'])) {
-                    $query->where($condition['column'], $condition['operator'], $condition['value']);
+                    // افزودن شرط به تابع
+                    if ($condition['operator'] === 'between' && is_array($condition['value'])) {
+                        $query->whereBetween($condition['column'], $condition['value']);
+                    } else {
+                        $query->where($condition['column'], $condition['operator'], $condition['value']);
+                    }
                 }
             }
         }
 
         if (isset($options['searchString'])) {
-            // $searchString = str_replace(' ','',$options['searchString']);
-            // $searchString = str_replace('and','#',$options['searchString']);
-            // $searchString = str_replace('not','#',$options['searchString']);
-            // $searchString = str_replace('or','#',$options['searchString']);
-            // $word = explode('#',$searchString);
-            // $query->where('message',like, $condition['value']);
-            // Log::info($word);
-
             $keywords = preg_split("/\s+(or|and)\s+/i", $options['searchString'], -1, PREG_SPLIT_DELIM_CAPTURE);
 
             // ایجاد شرط SQL
@@ -93,7 +90,7 @@ class TelegramMessageRepository
         $result = $query->paginate($perPage, ['*'], 'page', $page);
         // Log::info('Query Log: ' . $query->toSql());
 
-        return $result;
+        return [$result,$query->count()];
     }   
 
     function getMessageCounts(array $options, $perPage = 10)

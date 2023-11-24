@@ -1,36 +1,83 @@
 <template>
     <div class="card">
         <div class="card-body">
-            <h6 class="card-title">فیلتر‌ها</h6>
-            <div class="row gutters form-row">
-                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                    <label for="search_text">جستجو در پیام‌ها</label>
-                    <textarea class="form-control" placeholder="جستجو اخبار" id="search_text" v-model="search_text"></textarea>
-                </div>
-                
-                <div class="col-xl-2 col-lg-2 col-md-4 col-sm-12 col-12">
-                    <br>
-                    <button type="button" class="btn btn-primary" @click="getMessageList()"><i class="fa fa-search"></i></button>
+            <div class="accordion accordion-success custom-accordion">
+                <div class="accordion-row open">
+                    <a href="#" class="accordion-header">
+                        <span>فیلتر‌ها</span>
+                        <i class="accordion-status-icon close fa fa-plus"></i>
+                        <i class="accordion-status-icon open fa fa-close"></i>
+                    </a>
+                    <div class="accordion-body">
+                        <div class="row gutters form-row">
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <label for="search_text">از:</label>
+                                    <date-picker v-model="date_start"  is-range mode="dateTime" :timezone="timezone"></date-picker>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <label for="search_text">تا:</label>
+                                    <date-picker v-model="date_end"></date-picker>
+                                </div>
+                            </div>                
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <label for="search_user_id">شناسه کاربر:</label>
+                                    <input class="form-control text-left" id="search_user_id" v-model="search_user_id" placeholder="شناسه کاربر را برای فیلتر کردن وارد کنید" dir="rtl">
+                                </div>
+                            </div> 
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <label for="search_group_id">شناسه گروه:</label>
+                                    <input class="form-control text-left" id="search_group_id" v-model="search_group_id" placeholder="شناسه گروه را برای فیلتر کردن وارد کنید" dir="rtl">
+                                </div>
+                            </div>                 
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                <label for="search_text">جستجو در پیام‌ها</label>
+                                <textarea class="form-control" placeholder="جستجو اخبار" id="search_text" v-model="search_text"></textarea>
+                            </div>
+                            
+                            <div class="col-xl-2 col-lg-2 col-md-4 col-sm-12 col-12">
+                                <br>
+                                <button type="button" class="btn btn-primary" @click="isLoaded=false;getMessageList()"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>    
-
+    <div class="alert alert-secondary" role="alert">
+        تعداد پیام‌ها: {{MessageListCount}}
+    </div>
     <br>
     <div class="row gutters">
-		<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" v-if="!isLoaded">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="sr-only">در حال بارگذاری ...</span> 
+                    </div>    
+
+                    <h4>در حال دریافت اطلاعات لطفا شکیبا باشد :) </h4>
+                </div>    
+            </div>    
+        </div>
+		<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" v-else>
             <div class="card" v-for="(item, index)  in MessageList">
 				<div class="card-header" style="background: cornsilk;">
                     <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+                        <div class="col-xl-5 col-lg-7 col-md-4 col-sm-12 col-12">
                             <h4><i class="fa fa-telegram" style="color:#55acee !important" aria-hidden="true"></i> {{item.telegram_group ? item.telegram_group.name : item.gid}} </h4>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
                             <h4>
-                                <i class="fa fa-user" aria-hidden="true" style="color:#dc3545 !important"></i> {{item.user_id}}
+                                <i class="fa fa-user" aria-hidden="true" style="color:#dc3545 !important"></i> {{item.telegram_user ? item.telegram_user.first_name + ' ' + item.telegram_user.last_name +'<small>'+item.telegram_user.username+'</small>' : item.user_id}}
                             </h4>
                         </div>     
-                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 text-right" >
+                        <div class="col-xl-3 col-lg-3 col-md-4 col-sm-12 col-12 text-right" >
                             <h4>
                                 <i class="fa fa-clock-o" aria-hidden="true" style="color:#28a745 !important"></i>
                                 {{convertDateToPersian(item.date)}}
@@ -43,7 +90,7 @@
 				</div>
 			</div>            
         </div>
-        <div class="col-sm-12">
+        <div class="col-sm-12" v-if="isLoaded">
             <nav aria-label="Page navigation" v-if="pagination.last_page != 1">
                 <ul class="pagination justify-content-center pagination-rounded mb-3">
                     <li class="page-item" v-if="pagination.current_page > 1">
@@ -84,7 +131,13 @@ export default {
             },
             offset:4,
             itemsPerPage:20, 
-            search_text:'',           
+            search_text:'', 
+            MessageListCount:0,
+            date_start:'',
+            date_end:'',
+            search_user_id:'',    
+            search_group_id:'',
+            isLoaded:false,
         }
     },
     components: {  },  
@@ -100,11 +153,13 @@ export default {
                 const token = response.data.token;
                 axios.request({
                     method: 'GET',
-                    url: this.getAppUrl() + 'api/payesh/telegram?action=getMessageList&page='+page+'&search_text='+this.search_text,
+                    url: this.getAppUrl() + 'api/payesh/telegram?action=getMessageList&page='+page+'&search_text='+this.search_text+'&date_start='+this.date_start+'&date_end='+this.date_end+'&search_user_id='+this.search_user_id+'&search_group_id='+this.search_group_id,
                     headers: {'Authorization': `Bearer ${token}`}
                 }).then(response => {
                     this.fetchPagesDetails(response.data.MessageList);        
-                    this.MessageList = response.data.MessageList.data;                
+                    this.MessageList = response.data.MessageList.data; 
+                    this.MessageListCount =  response.data.MessageListCount;  
+                    this.isLoaded=true;
                 }).catch(error => {
                     this.checkError(error);
                 });
@@ -124,6 +179,7 @@ export default {
 
         },
         changePage: function (page,orderbyValue) {
+            this.isLoaded=false;
             this.getMessageList(page,'');
         },         
     },
@@ -153,3 +209,9 @@ export default {
     }    
 }
 </script>
+
+<style>
+.vpd-icon-btn{
+height: 36px;
+}
+</style>
