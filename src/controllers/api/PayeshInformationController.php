@@ -9,6 +9,8 @@ use Pishgaman\CyberspaceMonitoring\Database\models\TelegramGroup;
 use Pishgaman\CyberspaceMonitoring\Database\models\TelegramMessage;
 use Illuminate\Support\Facades\DB;
 use Pishgaman\CyberspaceMonitoring\Services\StatisticsCalculator;
+use Pishgaman\CyberspaceMonitoring\Repositories\TelegramMessageRepository;
+use Carbon\Carbon;
 
 class PayeshInformationController extends Controller
 {
@@ -28,9 +30,12 @@ class PayeshInformationController extends Controller
     protected $user;
     protected $logRepository;
     protected $calculator;
-    public function __construct(logRepository $logRepository,StatisticsCalculator $calculator)
+    protected $TelegramMessageRepository;
+
+    public function __construct(logRepository $logRepository,StatisticsCalculator $calculator,TelegramMessageRepository $TelegramMessageRepository)
     {
         $this->logRepository = $logRepository;
+        $this->TelegramMessageRepository = $TelegramMessageRepository;
         $this->calculator = $calculator;
         $this->middleware(CheckMenuAccess::class);
         $this->user = auth()->user();
@@ -92,7 +97,7 @@ class PayeshInformationController extends Controller
         return response()->json(['PayeshInformation' => $PayeshInformation], 200);
     }
 
-    public function ReleaseProcess()
+    public function ReleaseProcess(Request $request)
     {
         if (!$this->isValidAction('ReleaseProcess', 'GET')) {
             return response()->json(['errors' => 'requestNotAllowed'], 422);
@@ -101,6 +106,9 @@ class PayeshInformationController extends Controller
         $endDate = now(); // تاریخ فعلی
         $startDate = now()->subDays(30); // تاریخ 30 روز پیش از تاریخ فعلی
         
+        $startDate = (($request->date_start ?? '') == '') ? $startDate : $request->date_start ;
+        $endDate = (($request->date_end ?? '')== '') ? $endDate : $request->date_end ;
+
         $options = [
             'selectRaw' => 'DATE(date) as day, COUNT(*) as count',
             'groupby' => 'day',
@@ -125,14 +133,47 @@ class PayeshInformationController extends Controller
         return response()->json(['ReleaseProcess' => $ReleaseProcess], 200);
     }
 
-    public function telegramStatistics()
+    public function telegramStatistics(Request $request)
     {
         if (!$this->isValidAction('telegramStatistics', 'GET')) {
             return response()->json(['errors' => 'requestNotAllowed'], 422);
         }  
 
+        $today = Carbon::now();
+        $nextDay = $today->addDay()->format('Y-m-d h:i:s');
+        $beforday = $today->subDays(30)->format('Y-m-d h:i:s');
+
+        $startDate = (($request->date_start ?? '') == '') ? $beforday : $request->date_start ;
+        $endDate = (($request->date_end ?? '')== '') ? $nextDay : $request->date_end ;
+
+        $options = [
+            'select' => ['id'],
+            'conditions' => [
+                [
+                    'column' => 'date',
+                    'operator' => 'between',
+                    'value' => [$startDate, $endDate],
+                ],
+            ],   
+            'count'=>true         
+        ];
+
+        if(($request->search_user_id ?? '') != '')
+        {
+            $options['conditions'][] = ['column' => 'user_id', 'operator' => 'like', 'value' => '%'.$request->search_user_id.'%'];
+        }
+
+        if(($request->search_group_id ?? '') != '')
+        {
+            $options['conditions'][] = ['column' => 'gid', 'operator' => 'like', 'value' => '%'.$request->search_group_id.'%'];            
+        }        
+
+        if ($request->search_text != '') {
+            $options['searchString'] = $request->search_text;
+        }
+
         $groupCount = $this->calculator->getTelegramGroupCount();
-        $messageCount = $this->calculator->getTelegramMessageCount();
+        $messageCount =$this->TelegramMessageRepository->TelegramMessageGet($options);
         $sessionCount = $this->calculator->getTelegramSessionCount();
         $UserCount = $this->calculator->getTelegramUsersCount();
 

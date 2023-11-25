@@ -6,7 +6,7 @@ use Pishgaman\CyberspaceMonitoring\Database\models\TelegramMessage;
 use Log;
 class TelegramMessageRepository
 {
-    public function getIdCount()
+    public function getIdCount($startDate,$endDate)
     {
         return TelegramMessage::select('id')->count();
     }
@@ -88,7 +88,7 @@ class TelegramMessageRepository
         // اضافه کردن صفحه‌بندی
         $page = isset($options['page']) ? $options['page'] : 1;
         $result = $query->paginate($perPage, ['*'], 'page', $page);
-        // Log::info('Query Log: ' . $query->toSql());
+        Log::info('Query Log: ' . $query->toSql());
 
         return [$result,$query->count()];
     }   

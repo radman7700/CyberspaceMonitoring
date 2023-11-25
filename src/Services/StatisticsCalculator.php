@@ -24,9 +24,9 @@ class StatisticsCalculator
         return $this->groupRepository->groupCount();
     }
 
-    public function getTelegramMessageCount()
+    public function getTelegramMessageCount($options)
     {
-        return $this->messageRepository->getIdCount();
+        return $this->messageRepository->TelegramMessageGet($options);
     }
 
     public function getTelegramSessionCount()
