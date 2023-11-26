@@ -2,6 +2,8 @@
 
 return [
     'Payesh' => 'پایش',
-    'PayeshHome' => 'میز کار پایش',
-    'PayeshTelegramList' => 'فهرست پیام‌های تلگرام'
+    'channelHome' => 'کانال‌های تلگرام',
+    'PayeshHome' => 'گروه‌های تلگرام',
+    'PayeshTelegramList' => 'پیام‌‌های گروه‌های',
+    'PayeshTelegramChannelList' => 'پیام‌های کانال‌ها'
 ];

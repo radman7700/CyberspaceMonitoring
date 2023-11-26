@@ -6,9 +6,9 @@ use Pishgaman\CyberspaceMonitoring\Database\models\TelegramGroup;
 
 class TelegramGroupRepository
 {
-    public function groupCount()
+    public function groupCount($type='group')
     {
-        return TelegramGroup::select('gid')->distinct()->pluck('gid')->count();
+        return TelegramGroup::select('gid')->where('type',$type)->distinct()->pluck('gid')->count();
     }
 
     public function sessionCount()

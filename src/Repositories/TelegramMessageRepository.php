@@ -13,7 +13,7 @@ class TelegramMessageRepository
 
     public function TelegramMessageGet(array $options, $perPage = 10)
     {
-        $query = TelegramMessage::query();
+        $query = $options['query'];
         // Log::info($options);
 
         // اضافه کردن 'orderby' اختیاری
@@ -95,7 +95,8 @@ class TelegramMessageRepository
 
     function getMessageCounts(array $options, $perPage = 10)
     {
-        $query = TelegramMessage::selectRaw($options['selectRaw']);
+        $query = $options['query'];
+        $query = $query->selectRaw($options['selectRaw']);
 
         if (isset($options['groupby'])) {
             $query->groupBy($options['groupby']);

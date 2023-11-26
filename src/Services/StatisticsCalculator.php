@@ -19,9 +19,9 @@ class StatisticsCalculator
         $this->UsersRepository = $UsersRepository;
     }
 
-    public function getTelegramGroupCount()
+    public function getTelegramGroupCount($type='group')
     {
-        return $this->groupRepository->groupCount();
+        return $this->groupRepository->groupCount($type);
     }
 
     public function getTelegramMessageCount($options)

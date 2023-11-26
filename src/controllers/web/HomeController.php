@@ -9,6 +9,7 @@ class HomeController extends Controller
 {
     private $validActions = [
         'home',
+        'channelHome'
         // 'other_action',  // Add other safe actions here
     ];
 
@@ -31,6 +32,21 @@ class HomeController extends Controller
     /**
      * Handle the "home" action.
      */
+    public function channelHome(Request $request)
+    {
+        // Execute the "home" method only if it is a valid action.
+        if (!$this->isValidAction('home')) {
+            return abort(404);
+        }
+        $endDate = now(); // تاریخ فعلی
+        $startDate = now()->subDays(30);
+
+        $mix = ['packages/pishgaman/CyberspaceMonitoring/src/resources/vue/MonitoringChannelHomeApp.js'];
+        $card = 'میز کار پایش';
+
+        return view('CyberspaceMonitoringView::channelHome',['mix' => $mix]);
+    }
+
     public function home(Request $request)
     {
         // Execute the "home" method only if it is a valid action.
@@ -44,7 +60,7 @@ class HomeController extends Controller
         $card = 'میز کار پایش';
 
         return view('CyberspaceMonitoringView::Home',['mix' => $mix]);
-    }
+    }    
 
     public function WordCount(Request $request)
     {

@@ -42,4 +42,16 @@ class TelegramMessages extends Controller
         return view('CyberspaceMonitoringView::messagesList',['mix' => $mix]);
     }
 
+    public function telegramChannelMessagesList(Request $request)
+    {
+        // Execute the "messagesList" method only if it is a valid action.
+        if (!$this->isValidAction('messagesList')) {
+            return abort(404);
+        }
+
+        $mix = ['packages/pishgaman/CyberspaceMonitoring/src/resources/vue/messagesTelegramChannelListApp.js'];
+
+        return view('CyberspaceMonitoringView::messagesList',['mix' => $mix]);
+    }    
+
 }
