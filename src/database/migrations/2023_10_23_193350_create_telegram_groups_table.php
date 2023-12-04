@@ -13,13 +13,19 @@ return new class extends Migration
     {
         Schema::create('telegram_groups', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('gid');
+            $table->unsignedBigInteger('gid')->index();
             $table->string('name')->nullable();
             $table->string('username')->nullable();
             $table->integer('participants_count')->nullable();
             $table->text('description')->nullable();
             $table->text('session')->nullable();
             $table->timestamps();
+
+            // افزودن ایندکس ترکیبی برای gid و participants_count
+            $table->index(['gid', 'participants_count']);
+            
+            // افزودن ایندکس ترتیبی برای name به ترتیب نزولی
+            $table->index('name', 'name_index_desc')->desc();            
         });
     }
 
