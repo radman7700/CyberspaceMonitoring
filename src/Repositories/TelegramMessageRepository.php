@@ -88,7 +88,7 @@ class TelegramMessageRepository
         // اضافه کردن صفحه‌بندی
         $page = isset($options['page']) ? $options['page'] : 1;
         $result = $query->paginate($perPage, ['*'], 'page', $page);
-        Log::info('Query Log: ' . $query->toSql());
+        // Log::info('Query Log: ' . $query->toSql());
 
         return [$result,$query->count()];
     }   
