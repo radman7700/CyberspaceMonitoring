@@ -7,12 +7,14 @@ use Pishgaman\Pishgaman\Repositories\LogRepository;
 use Pishgaman\Pishgaman\Middleware\CheckMenuAccess;
 use Pishgaman\CyberspaceMonitoring\Database\models\TelegramGroup;
 use Pishgaman\CyberspaceMonitoring\Database\models\TelegramMessage;
+use Pishgaman\CyberspaceMonitoring\Database\models\TelegramUser;
 use Pishgaman\CyberspaceMonitoring\Database\models\TelegramChannelMessage;
 use Illuminate\Support\Facades\DB;
 use Pishgaman\CyberspaceMonitoring\Services\StatisticsCalculator;
 use Pishgaman\CyberspaceMonitoring\Repositories\TelegramMessageRepository;
-
 use Carbon\Carbon;
+use Morilog\Jalali\Jalalian;
+use Log;
 
 class PayeshInformationController extends Controller
 {
@@ -22,7 +24,9 @@ class PayeshInformationController extends Controller
         'ReleaseProcess',
         'channelHome',
         'channeltelegramStatistics',
-        'channelReleaseProcess',        
+        'channelReleaseProcess', 
+        'getInfluentialUsers',
+        'getInfluentialGroup'       
     ];
 
     protected $validMethods = [
@@ -32,7 +36,9 @@ class PayeshInformationController extends Controller
             'ReleaseProcess',
             'channelHome',
             'channeltelegramStatistics',
-            'channelReleaseProcess'
+            'channelReleaseProcess',
+            'getInfluentialUsers',
+            'getInfluentialGroup'
         ],
         'POST' => [], // Added 'createAccessLevel' as a valid action for POST method
         'PUT' => [],
@@ -134,7 +140,7 @@ class PayeshInformationController extends Controller
         $count = array();
 
         foreach ($ReleaseProcess as $item) {
-            $dates[] = $item['day'];
+            $dates[] = Jalalian::fromDateTime( $item['day'])->format('Y/m/d');
             $count[] = $item['count'];
         }        
 
@@ -152,12 +158,11 @@ class PayeshInformationController extends Controller
             return response()->json(['errors' => 'requestNotAllowed'], 422);
         }  
 
-        $today = Carbon::now();
-        $nextDay = $today->addDay()->format('Y-m-d h:i:s');
-        $beforday = $today->subDays(30)->format('Y-m-d h:i:s');
-
-        $startDate = (($request->date_start ?? '') == '') ? $beforday : $request->date_start ;
-        $endDate = (($request->date_end ?? '')== '') ? $nextDay : $request->date_end ;
+        $nextDay = Carbon::now();
+        $beforday = (new Carbon($nextDay))->subDays(1)->format('Y-m-d h:i:s');
+        
+        $startDate = (($request->date_start ?? '') == '') ? $beforday : $request->date_start;
+        $endDate = (($request->date_end ?? '') == '') ? $nextDay : $request->date_end;
 
         $options = [
             'query' => TelegramMessage::query(),
@@ -259,7 +264,7 @@ class PayeshInformationController extends Controller
         $count = array();
 
         foreach ($ReleaseProcess as $item) {
-            $dates[] = $item['day'];
+            $dates[] = Jalalian::fromDateTime( $item['day'])->format('Y/m/d');
             $count[] = $item['count'];
         }        
 
@@ -278,11 +283,12 @@ class PayeshInformationController extends Controller
         }  
 
         $today = Carbon::now();
-        $nextDay = $today->addDay()->format('Y-m-d h:i:s');
-        $beforday = $today->subDays(30)->format('Y-m-d h:i:s');
 
-        $startDate = (($request->date_start ?? '') == '') ? $beforday : $request->date_start ;
-        $endDate = (($request->date_end ?? '')== '') ? $nextDay : $request->date_end ;
+        $nextDay = Carbon::now();
+        $beforday = (new Carbon($nextDay))->subDays(1)->format('Y-m-d h:i:s');
+        
+        $startDate = (($request->date_start ?? '') == '') ? $beforday : $request->date_start;
+        $endDate = (($request->date_end ?? '') == '') ? $nextDay : $request->date_end;
 
         $options = [
             'query' => TelegramChannelMessage::query(),
@@ -324,5 +330,134 @@ class PayeshInformationController extends Controller
         ];
 
         return response()->json(['telegramStatistics' => $telegramStatistics], 200);        
+    }    
+    
+    /**
+     * بازگرداندن اطلاعات کاربران پرنفوذ بر اساس تعداد پیام‌های ارسالی.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    function getInfluentialUsers(Request $request) 
+    {
+        if (!$this->isValidAction('getInfluentialUsers', 'GET')) {
+            return response()->json(['errors' => 'requestNotAllowed'], 422);
+        } 
+
+        $nextDay = Carbon::now();
+        $beforday = (new Carbon($nextDay))->subDays(1)->format('Y-m-d h:i:s');
+        
+        $startDate = (($request->date_start ?? '') == '') ? $beforday : $request->date_start;
+        $endDate = (($request->date_end ?? '') == '') ? $nextDay : $request->date_end;
+
+        $topUsers = TelegramMessage::query();
+        
+        $topUsers->select('user_id', DB::raw('count(*) as total_messages'))
+            ->where('user_id', '>', 0)
+            ->whereBetween('date', [$startDate, $endDate]) // Add this line for date range
+            ->groupBy('user_id')
+            ->orderByDesc('total_messages');
+        
+        if (($request->search_text ?? '') != '') {
+            $keywords = preg_split("/\s+(or|and)\s+/i", $request->search_text, -1, PREG_SPLIT_DELIM_CAPTURE);
+        
+            // Create SQL condition
+            $sqlCondition = '';
+            foreach ($keywords as $key => $word) {
+                if ($key % 2 == 0) {
+                    // Words between "OR" or "AND" expressions
+                    $sqlCondition .= "message LIKE '%$word%'";
+                } else {
+                    // "OR" or "AND" expressions
+                    $sqlCondition .= strtoupper($word) . ' ';
+                }
+            }
+        
+            // Add condition to the query
+            $topUsers->whereRaw($sqlCondition);
+        }
+        
+        // Retrieve top users
+        $topUsersResult = $topUsers->take(10)->get();
+
+        
+
+        $users = [];
+        foreach ($topUsersResult as $user) {
+            $userId = $user->user_id;
+            $totalMessages = $user->total_messages;
+        
+            $userData = TelegramUser::where('user_id',$userId)->first(); 
+            $users[] =  ($userData->first_name ?? $userId) . ' ' . ($userData->last_name ?? '');      
+        }
+
+        $messagesCounts = $topUsers->pluck('total_messages')->toArray();
+        
+        $influentialUsers = [
+            'user' => $users,
+            'messages_count' => $messagesCounts
+        ];
+
+        return response()->json(['influentialUsers' => $influentialUsers], 200);
+    }
+
+    function getInfluentialGroup(Request $request) 
+    {
+        if (!$this->isValidAction('getInfluentialGroup', 'GET')) {
+            return response()->json(['errors' => 'requestNotAllowed'], 422);
+        } 
+
+        $nextDay = Carbon::now();
+        $beforday = (new Carbon($nextDay))->subDays(1)->format('Y-m-d h:i:s');
+        
+        $startDate = (($request->date_start ?? '') == '') ? $beforday : $request->date_start;
+        $endDate = (($request->date_end ?? '') == '') ? $nextDay : $request->date_end;
+
+        $topUsers = TelegramMessage::query();
+        $topUsers->select('gid', DB::raw('count(*) as total_messages'))
+            ->where('gid', '>', 0)
+            ->whereBetween('date', [$startDate, $endDate]) // Add this line for date range
+            ->groupBy('gid')
+            ->orderByDesc('total_messages');
+        
+        if (($request->search_text ?? '') != '') {
+            $keywords = preg_split("/\s+(or|and)\s+/i", $request->search_text, -1, PREG_SPLIT_DELIM_CAPTURE);
+        
+            // Create SQL condition
+            $sqlCondition = '';
+            foreach ($keywords as $key => $word) {
+                if ($key % 2 == 0) {
+                    // Words between "OR" or "AND" expressions
+                    $sqlCondition .= "message LIKE '%$word%'";
+                } else {
+                    // "OR" or "AND" expressions
+                    $sqlCondition .= strtoupper($word) . ' ';
+                }
+            }
+        
+            // Add condition to the query
+            $topUsers->whereRaw($sqlCondition);
+        }
+        
+        // Retrieve top users
+        $topUsersResult = $topUsers->take(10)->get();
+        
+
+        $groups = [];
+        foreach ($topUsersResult as $group) {
+            $gid = $group->gid;
+            $totalMessages = $group->total_messages;
+        
+            $groupData = TelegramGroup::where('gid',$gid)->first(); 
+            $groups[] =  ($groupData->name ?? $gid);      
+        }
+
+        $messagesCounts = $topUsers->pluck('total_messages')->toArray();
+        
+        $groupMessageCounts = [
+            'group' => $groups,
+            'messages_count' => $messagesCounts
+        ];
+
+        return response()->json(['groupMessageCounts' => $groupMessageCounts], 200);
     }    
 }
