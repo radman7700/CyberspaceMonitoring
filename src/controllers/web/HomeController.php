@@ -66,6 +66,6 @@ class HomeController extends Controller
     {
         ini_set('max_execution_time', 0); // 0 به معنی بی‌نهایت (برنامه هیچ وقت متوقف نمی‌شود)
 
-        $this->TelegramWordRepository->CountTelegramWordMessageInDB();
+        $this->TelegramWordRepository->CountTelegramWordMessageInDB(50000,100001);
     }
 }
