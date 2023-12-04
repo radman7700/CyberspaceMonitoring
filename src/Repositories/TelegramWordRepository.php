@@ -4,6 +4,7 @@ namespace Pishgaman\CyberspaceMonitoring\Repositories;
 
 use Pishgaman\CyberspaceMonitoring\Database\models\TelegramWordCount;
 use Pishgaman\CyberspaceMonitoring\Repositories\TelegramMessageRepository;
+use Pishgaman\CyberspaceMonitoring\Database\models\TelegramMessage;
 use Pishgaman\Pishgaman\Library\Virastyar\VirastyarInterface;
 use Pishgaman\Pishgaman\Library\globalfunction;
 use Carbon\Carbon;
@@ -19,16 +20,15 @@ class TelegramWordRepository
         $this->TelegramMessage = new TelegramMessageRepository();
     }
 
-    public function CountTelegramWordMessageInDB()
+    public function CountTelegramWordMessageInDB($min,$max)
     {
         $Virastyar = \App::make(VirastyarInterface::class);
         $options = [
-            'min' => 0,
-            'max' => 20001,
+            'query'=>TelegramMessage::query(),
             'get' => true,
             'conditions' => [
-                ['column' => 'id', 'operator' => '>', 'value' => 80000],
-                ['column' => 'id', 'operator' => '<', 'value' => 90001],
+                ['column' => 'id', 'operator' => '>', 'value' => $min],
+                ['column' => 'id', 'operator' => '<', 'value' => $max],
             ],            
         ];
         
