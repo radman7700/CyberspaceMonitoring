@@ -11,5 +11,10 @@ class TelegramGroup extends Model
     protected $table = 'telegram_groups';
 
     protected $fillable = ['gid', 'name', 'username', 'participants_count', 'description'];
+
+    public function messages()
+    {
+        return $this->hasMany(TelegramMessage::class, 'gid', 'gid');
+    }
 }
 
