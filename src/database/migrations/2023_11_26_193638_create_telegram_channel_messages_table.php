@@ -44,7 +44,15 @@ return new class extends Migration
             'packeage' => 'CyberspaceMonitoringLang',
             'route' => 'payesh_telegram_channel_messages_list',
             'icon' => 'fa fa-list',
-        ]);               
+        ]);  
+        DB::table('menus')->insert([
+            'order' => '3',
+            'parent_id' => '10',
+            'name' => 'PayeshTelegramUsersList',
+            'packeage' => 'CyberspaceMonitoringLang',
+            'route' => 'payesh_telegram_user_list',
+            'icon' => 'fa fa-users',
+        ]);             
     }
 
     /**
@@ -55,3 +63,4 @@ return new class extends Migration
         Schema::dropIfExists('telegram_channel_messages');
     }
 };
+ 
