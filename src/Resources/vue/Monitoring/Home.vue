@@ -127,34 +127,66 @@
 			</div>
 		</div>   
     </div>     
-    <div class="row gutters">
-		<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+    <div class="row gutters"> 
+		<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
 		    <div class="card h-320">
 			    <div class="card-header">
-				    <div class="card-title">بالاترین کلمات کلیدی</div>
+				    <div class="card-title">کاربران تاثیر گذار</div>
+				</div>
+				<div class="card-body d-flex">
+                    <Bar id="my-chart-id" :options="barUserChartOptions" :data="barUserChartData" :key="barUserChartKey"/>                    
+				</div>
+			</div>
+		</div>
+		<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+		    <div class="card h-320">
+			    <div class="card-header">
+				    <div class="card-title">گروه‌های تاثیر گذار</div>
+				</div>
+				<div class="card-body d-flex">
+                    <Bar id="my-chart-id" :options="barGroupChartOptions" :data="barGroupChartData" :key="barGroupChartKey"/>                    
+				</div>
+			</div>
+		</div>        
+		<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+		    <div class="card h-320">
+			    <div class="card-header">
+				    <div class="card-title">ابر کلمات</div>
 				</div>
 				<div class="card-body d-flex">
 				    <div id="my_favorite_latin_words" class="w-100" style="width:100%;height: 480px;"></div>
 				</div>
 			</div>
-		</div>   
+		</div>                  
     </div>   
 
 </template>
 
 <script>
 
-import {Chart as ChartJS,CategoryScale,LinearScale,PointElement,LineElement,Title,Tooltip,Legend} from 'chart.js'
+import {Chart as ChartJS,CategoryScale,LinearScale,PointElement,LineElement,Title,Tooltip,Legend,BarElement} from 'chart.js'
+
 import { Line } from 'vue-chartjs'
-ChartJS.register(CategoryScale,LinearScale,PointElement,LineElement,Title,Tooltip,Legend)
+import { Bar } from 'vue-chartjs'
+ChartJS.register(CategoryScale,LinearScale,PointElement,LineElement,Title,Tooltip,Legend, BarElement)
 
 export default {
     data() {
         return {
             chartKey:0,
+            barUserChartKey:0,
+            barGroupChartKey:0,
             PayeshInformation:[],
             telegramStatistics:[],
             ReleaseProcess:[],
+            date_start:'',
+            date_end:'',
+            search_user_id:'',
+            search_group_id:'',
+            search_text:'',
+            influentialUsers:'',
+            groupMessageCounts:'',
+            chart: null,            
             data : {
                 labels: [],
                 datasets: [
@@ -169,25 +201,51 @@ export default {
                 responsive: true,
                 maintainAspectRatio: false
             },
-            date_start:'',
-            date_end:'',
-            search_user_id:'',
-            search_group_id:'',
-            search_text:''
+            barUserChartData: {
+                labels: [],
+                datasets: [ 
+                    {
+                        label: 'کاربران تاثیر گذار',
+                        backgroundColor: '#f87979',
+                        data: []
+                    } 
+                ]
+            },
+            barUserChartOptions: {
+                responsive: true
+            }, 
+            barGroupChartData: {
+                labels: [],
+                datasets: [ 
+                    {
+                        label: 'گروه‌های تاثیر گذار',
+                        backgroundColor: '#5867dd',
+                        data: []
+                    } 
+                ]
+            },
+            barGroupChartOptions: {
+                responsive: true
+            },                       
         }
     },
-    components: { Line },  
+    components: { Line , Bar  },  
     mounted() {
         this.getTelegramStatistics();
         this.getReleaseProcess();
         this.SystemMonitoringInformation();
+        this.getInfluentialUsers();
+        this.getInfluentialGroup();
     },
     methods: {
         refreshPage(){
             this.getTelegramStatistics();
             this.getReleaseProcess();
-            this.SystemMonitoringInformation();        
+            this.SystemMonitoringInformation();  
+            this.getInfluentialUsers();
+            this.getInfluentialGroup();
         },
+
         SystemMonitoringInformation() {   
             axios.get(this.getAppUrl() + 'sanctum/getToken').then(response => {
                 const token = response.data.token;
@@ -208,7 +266,45 @@ export default {
             }).catch(error => {
                 this.checkError(error);
             });
-        },    
+        },   
+        getInfluentialUsers(){
+            axios.get(this.getAppUrl() + 'sanctum/getToken').then(response => {
+                const token = response.data.token;
+                axios.request({
+                    method: 'GET',
+                    url: this.getAppUrl() + 'api/payesh/information?action=getInfluentialUsers&search_text='+this.search_text+'&date_start='+this.date_start+'&date_end='+this.date_end+'&search_user_id='+this.search_user_id+'&search_group_id='+this.search_group_id,
+                    headers: {'Authorization': `Bearer ${token}`}
+                }).then(response => {
+                    this.influentialUsers = response.data.influentialUsers;
+                    this.barUserChartData.labels = this.influentialUsers.user;
+                    this.barUserChartData.datasets[0].data = this.influentialUsers.messages_count;
+                    this.barUserChartKey++
+                }).catch(error => {
+                    this.checkError(error);
+                });
+            }).catch(error => {
+                this.checkError(error);
+            });
+        },
+        getInfluentialGroup(){
+            axios.get(this.getAppUrl() + 'sanctum/getToken').then(response => {
+                const token = response.data.token;
+                axios.request({
+                    method: 'GET',
+                    url: this.getAppUrl() + 'api/payesh/information?action=getInfluentialGroup&search_text='+this.search_text+'&date_start='+this.date_start+'&date_end='+this.date_end+'&search_user_id='+this.search_user_id+'&search_group_id='+this.search_group_id,
+                    headers: {'Authorization': `Bearer ${token}`}
+                }).then(response => {
+                    this.groupMessageCounts = response.data.groupMessageCounts;
+                    this.barGroupChartData.labels = this.groupMessageCounts.group;
+                    this.barGroupChartData.datasets[0].data = this.groupMessageCounts.messages_count;
+                    this.barGroupChartKey++
+                }).catch(error => {
+                    this.checkError(error);
+                });
+            }).catch(error => {
+                this.checkError(error);
+            });
+        },        
         getTelegramStatistics() {   
             axios.get(this.getAppUrl() + 'sanctum/getToken').then(response => {
                 const token = response.data.token;
@@ -235,7 +331,7 @@ export default {
                 }).then(response => {
                     this.data.labels = response.data.ReleaseProcess.ReleaseProcessDates;
                     this.data.datasets[0].data = response.data.ReleaseProcess.ReleaseProcessCount; // اطمینان حاصل شود که به datasets[0].data دسترسی دارید
-                     this.chartKey++;
+                    this.chartKey++;
                 }).catch(error => {
                     this.checkError(error);
                 });
