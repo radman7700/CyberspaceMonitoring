@@ -21,6 +21,14 @@ return new class extends Migration
             $table->text('tag')->nullable();
             $table->timestamps();
         });
+        Schema::create('telegram_user_group', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('group_id');
+            $table->string('type')->nullable();
+            $table->string('user_group_type')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -28,6 +36,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('telegram_user_group');
         Schema::dropIfExists('telegram_users');
     }
 };
