@@ -5,5 +5,6 @@ return [
     'channelHome' => 'کانال‌های تلگرام',
     'PayeshHome' => 'گروه‌های تلگرام',
     'PayeshTelegramList' => 'پیام‌‌های گروه‌های',
-    'PayeshTelegramChannelList' => 'پیام‌های کانال‌ها'
+    'PayeshTelegramChannelList' => 'پیام‌های کانال‌ها',
+    'PayeshTelegramUsersList'=>'فهرست کاربران تلگرام'
 ];
